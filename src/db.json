@@ -1,0 +1,94 @@
+{
+  "blocks": [
+    {
+      "id": "c2aa",
+      "type": "text",
+      "value": "Hi Yuxin and Noah",
+      "tag": "h1",
+      "src": "",
+      "width": 200,
+      "height": 200
+    },
+    {
+      "id": "e32d",
+      "type": "text",
+      "value": "This project was hard for the 1 hour timeframe but I tried my best to make it look presentable :)",
+      "tag": "p",
+      "src": "",
+      "width": 100,
+      "height": 100
+    },
+    {
+      "id": "0d96",
+      "type": "text",
+      "value": "I wanted to get to around to get to text editing and implemented the endpoint but had no time to get to the frontend for that.",
+      "tag": "p",
+      "src": "",
+      "width": 200,
+      "height": 200
+    },
+    {
+      "id": "4d9e",
+      "type": "text",
+      "value": "This is a p element",
+      "tag": "p",
+      "src": "",
+      "width": 200,
+      "height": 200
+    },
+    {
+      "id": "0b7c",
+      "type": "text",
+      "value": "This is H1",
+      "tag": "h1",
+      "src": "",
+      "width": 100,
+      "height": 100
+    },
+    {
+      "id": "7ccc",
+      "type": "image",
+      "value": "https://picsum.photos/200",
+      "tag": "p",
+      "src": "/images/image1716312437745.jpg",
+      "width": 200,
+      "height": 200
+    },
+    {
+      "id": "1dd9",
+      "type": "text",
+      "value": "Here's an h3",
+      "tag": "h3",
+      "src": "",
+      "width": 200,
+      "height": 200
+    },
+    {
+      "id": "1b29",
+      "type": "text",
+      "value": "To make it similar to Notion, I can add text by hitting enter. I could also have added an onBlur event handler but thought that might make it too clunky in the current state",
+      "tag": "p",
+      "src": "",
+      "width": 200,
+      "height": 200
+    },
+    {
+      "id": "d449",
+      "type": "text",
+      "value": "Hello",
+      "tag": "h3",
+      "src": "",
+      "width": 200,
+      "height": 200
+    },
+    {
+      "id": "8810",
+      "type": "image",
+      "value": "",
+      "tag": "p",
+      "src": "/images/image1716319605068.jpg",
+      "width": 200,
+      "height": 200
+    }
+  ]
+}

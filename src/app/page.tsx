@@ -1,113 +1,245 @@
+"use client";
+
+import React, {
+  useEffect,
+  useState,
+  ChangeEvent,
+  KeyboardEventHandler,
+} from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
+type Block = {
+  id?: number;
+  type: "text" | "image";
+  value?: string;
+  tag?: "p" | "h1" | "h2" | "h3";
+  src?: string;
+  width?: number;
+  height?: number;
+};
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+const Home = () => {
+  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [newBlock, setNewBlock] = useState<Block>({
+    type: "text",
+    value: "",
+    tag: "p",
+    src: "",
+    width: 200,
+    height: 200,
+  });
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
+  useEffect(() => {
+    fetch("/api/blocks")
+      .then((response) => response.json())
+      .then((data) => setBlocks(data));
+  }, []);
+
+  const addBlock = async () => {
+    let blockToAdd: Block;
+    if (newBlock.type === "image") {
+      const imgResponse = await fetch("/api/saveImage", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ src: newBlock.src }),
+      });
+      const data = await imgResponse.json();
+      if (imgResponse.ok) {
+        blockToAdd = { ...newBlock, src: data.src };
+      } else {
+        console.error(data.message);
+        return;
+      }
+    } else blockToAdd = { ...newBlock };
+
+    const response = await fetch("/api/blocks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(blockToAdd),
+    });
+    const block = await response.json();
+    setBlocks([...blocks, block]);
+    setNewBlock({
+      type: "text",
+      value: "",
+      tag: "p",
+      src: "",
+      width: 200,
+      height: 200,
+    });
+  };
+
+  const handleKeyPress: KeyboardEventHandler<HTMLInputElement> = (e) => {
+    if (e.key === "Enter") {
+      addBlock();
+    }
+  };
+
+  const getBlockElement = (block: Block) => {
+    const tag = block.tag || "p";
+    const className =
+      tag === "h1"
+        ? "text-4xl font-bold mb-4"
+        : tag === "h2"
+        ? "text-3xl font-semibold mb-3"
+        : tag === "h3"
+        ? "text-2xl font-medium mb-2"
+        : "text-base mb-2";
+
+    if (block.type === "text") {
+      return React.createElement(tag, { className }, block.value);
+    } else {
+      return (
         <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+          className="object-contain"
+          src={block.src!}
+          width={block.width}
+          height={block.height}
+          alt="Block Image"
         />
+      );
+    }
+  };
+  const newBlockStyle = (tag: string) => {
+    const style =
+      tag === "h1"
+        ? "text-4xl font-bold mb-4"
+        : tag === "h2"
+        ? "text-3xl font-semibold mb-3"
+        : tag === "h3"
+        ? "text-2xl font-medium mb-2"
+        : "text-base mb-2";
+    return style;
+  };
+  return (
+    <div className="container mx-auto p-4 pt-24">
+      <h1 className="ml-[168px] text-4xl font-bold mb-4">Notion-Like</h1>
+      <div className="space-y-2 ml-[168px]">
+        {blocks.map((block, index) => (
+          <div key={index} className="pb-2">
+            {getBlockElement(block)}
+          </div>
+        ))}
       </div>
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+      {/* new block */}
+      <div className="mt-4 p-4  flex gap-2">
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-16">
+                {newBlock.type}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuLabel>Block Type</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup
+                value={newBlock.type}
+                onValueChange={(e) =>
+                  setNewBlock({
+                    ...newBlock,
+                    type: e as "text" | "image",
+                  })
+                }
+              >
+                <DropdownMenuRadioItem value="text">Text</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="image">
+                  Image
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+        {newBlock.type === "text" ? (
+          <div className="flex flex-1 gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-16">
+                  {newBlock.tag}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>Block Type</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup
+                  value={newBlock.tag}
+                  onValueChange={(e) =>
+                    setNewBlock({
+                      ...newBlock,
+                      tag: e as "p" | "h1" | "h2" | "h3",
+                    })
+                  }
+                >
+                  <DropdownMenuRadioItem value="p">
+                    Paragraph
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="h1">H1</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="h2">H2</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="h3">H3</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+            <Input
+              className={`block mb-4 p-2 border-none rounded flex-1 outline-none ${newBlockStyle(
+                newBlock.tag!
+              )}`}
+              type="text"
+              placeholder="Text"
+              value={newBlock.value}
+              onKeyDown={handleKeyPress}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setNewBlock({ ...newBlock, value: e.target.value })
+              }
+            />
+          </div>
+        ) : (
+          <div className="flex flex-1 gap-2">
+            <Input
+              className="block mb-4 p-2 border rounded w-16"
+              type="number"
+              placeholder="Width"
+              value={newBlock.width}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setNewBlock({
+                  ...newBlock,
+                  width: parseInt(e.target.value, 10),
+                  height: parseInt(e.target.value, 10),
+                })
+              }
+            />
+            <Input
+              className="block mb-4 border-none p-2 outline-none"
+              type="text"
+              placeholder="Image URL"
+              value={newBlock.src}
+              onKeyDown={handleKeyPress}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setNewBlock({ ...newBlock, src: e.target.value })
+              }
+            />
+          </div>
+        )}
       </div>
-    </main>
+    </div>
   );
-}
+};
+
+export default Home;
