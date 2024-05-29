@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
   const data = await res.json();
   return NextResponse.json(data, { status: 201 });
 }
+
 export async function PUT(request: Request) {
   const body = await request.json();
   const { id, ...updatedBlock } = body;

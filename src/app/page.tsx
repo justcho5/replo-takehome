@@ -19,7 +19,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-type Block = {
+import { truncate } from "fs";
+import { TextBlock } from "@/components/block";
+export type Block = {
   id?: number;
   type: "text" | "image";
   value?: string;
@@ -27,6 +29,17 @@ type Block = {
   src?: string;
   width?: number;
   height?: number;
+};
+export const newBlockStyle = (tag: string) => {
+  const style =
+    tag === "h1"
+      ? "text-4xl font-bold mb-4"
+      : tag === "h2"
+      ? "text-3xl font-semibold mb-3"
+      : tag === "h3"
+      ? "text-2xl font-medium mb-2"
+      : "text-base mb-2";
+  return style;
 };
 
 const Home = () => {
@@ -83,6 +96,17 @@ const Home = () => {
       height: 200,
     });
   };
+  const updateBlock = async (updateBlock: Block) => {
+    const response = await fetch("/api/blocks", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateBlock),
+    });
+    const data = await response.json();
+    setBlocks(blocks.map((b) => (b.id === data.id ? data : b)));
+  };
 
   const handleKeyPress: KeyboardEventHandler<HTMLInputElement> = (e) => {
     if (e.key === "Enter") {
@@ -92,17 +116,9 @@ const Home = () => {
 
   const getBlockElement = (block: Block) => {
     const tag = block.tag || "p";
-    const className =
-      tag === "h1"
-        ? "text-4xl font-bold mb-4"
-        : tag === "h2"
-        ? "text-3xl font-semibold mb-3"
-        : tag === "h3"
-        ? "text-2xl font-medium mb-2"
-        : "text-base mb-2";
-
+    const className = newBlockStyle(tag);
     if (block.type === "text") {
-      return React.createElement(tag, { className }, block.value);
+      return <TextBlock block={block} onUpdateBlock={updateBlock} />;
     } else {
       return (
         <Image
@@ -115,17 +131,7 @@ const Home = () => {
       );
     }
   };
-  const newBlockStyle = (tag: string) => {
-    const style =
-      tag === "h1"
-        ? "text-4xl font-bold mb-4"
-        : tag === "h2"
-        ? "text-3xl font-semibold mb-3"
-        : tag === "h3"
-        ? "text-2xl font-medium mb-2"
-        : "text-base mb-2";
-    return style;
-  };
+
   return (
     <div className="container mx-auto p-4 pt-24">
       <h1 className="ml-[168px] text-4xl font-bold mb-4">Notion-Like</h1>

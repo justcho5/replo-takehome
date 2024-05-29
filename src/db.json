@@ -28,13 +28,13 @@
       "height": 200
     },
     {
-      "id": "4d9e",
       "type": "text",
-      "value": "This is a p element",
+      "value": "This is a p element this is now working",
       "tag": "p",
       "src": "",
       "width": 200,
-      "height": 200
+      "height": 200,
+      "id": "4d9e"
     },
     {
       "id": "0b7c",
@@ -64,22 +64,22 @@
       "height": 200
     },
     {
-      "id": "1b29",
       "type": "text",
       "value": "To make it similar to Notion, I can add text by hitting enter. I could also have added an onBlur event handler but thought that might make it too clunky in the current state",
       "tag": "p",
       "src": "",
       "width": 200,
-      "height": 200
+      "height": 200,
+      "id": "1b29"
     },
     {
-      "id": "d449",
       "type": "text",
-      "value": "Hello",
+      "value": "Hello how does this work\n\n",
       "tag": "h3",
       "src": "",
       "width": 200,
-      "height": 200
+      "height": 200,
+      "id": "d449"
     },
     {
       "id": "8810",
